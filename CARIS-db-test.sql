@@ -6,14 +6,14 @@ create database CARIS;
 
 use CARIS;
 
-create table members -- keeps track of all members who might attend sessions. Individual member data is saved in Google's local contacts.
+create table member -- keeps track of all members who might attend sessions. Individual member data is saved in Google's local contacts.
 (
     ID int unsigned NOT NULL,
     firstName varchar(255) NOT NULL, -- matches user's gmail account name
     lastName varchar(255) NOT NULL,
     age int unsigned,
     picture varchar(255),
-    Notes varchar(511),
+    notes varchar(511),
     timesVisited int unsigned,
     PRIMARY KEY (ID)
 );
