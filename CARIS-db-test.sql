@@ -8,8 +8,12 @@ use CARIS;
 
 create table members -- keeps track of all members who might attend sessions. Individual member data is saved in Google's local contacts.
 (
-    contact varchar(255) NOT NULL, -- matches user's gmail account name
-    PRIMARY KEY (contact)
+    ID int unsigned NOT NULL,
+    firstName varchar(255) NOT NULL, -- matches user's gmail account name
+    lastName varchar(255) NOT NULL,
+    picture varchar(255),
+    Notes varchar(511),
+    PRIMARY KEY (ID)
 );
 
 create table lessons -- keeps track of the different lessons that users can teach.
@@ -31,8 +35,8 @@ create table sessions -- keeps track of all individual meetings where lessons ar
 
 create table attendeeList -- Keeps track of all members attending any given session.
 (
-	member varchar(255) NOT NULL,
+	member int unsigned NOT NULL,
     sessionAttended int unsigned NOT NULL,
     PRIMARY KEY (member, sessionAttended),
-    CONSTRAINT FOREIGN KEY (member) REFERENCES members(contact)
+    CONSTRAINT FOREIGN KEY (member) REFERENCES members(ID)
 );
