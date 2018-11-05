@@ -18,7 +18,7 @@ create table member -- keeps track of all members who might attend sessions. Ind
     PRIMARY KEY (ID)
 );
 
-create table attendeeList -- Keeps track of all members attending any given session.
+create table attendanceEntry -- Keeps track of all members attending any given session.
 (
 	member int unsigned NOT NULL,
     dateAttended datetime NOT NULL,
