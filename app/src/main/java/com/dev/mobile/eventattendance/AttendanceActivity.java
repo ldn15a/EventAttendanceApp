@@ -51,7 +51,7 @@ public class AttendanceActivity extends AppCompatActivity {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dates.get(dates.size() -1));
             calendar.add(Calendar.DAY_OF_YEAR, REFRESH_PERIOD);
-            Date expire_date = calendar.getTime();
+            java.util.Date expire_date = calendar.getTime();
             return expire_date.after(new Date());
         }
     }
