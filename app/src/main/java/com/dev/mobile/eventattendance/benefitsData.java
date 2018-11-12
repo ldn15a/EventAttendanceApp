@@ -1,7 +1,5 @@
 package com.dev.mobile.eventattendance;
 
-import android.support.annotation.NonNull;
-
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 

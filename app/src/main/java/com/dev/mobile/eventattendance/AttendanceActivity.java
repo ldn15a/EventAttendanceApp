@@ -1,9 +1,5 @@
 package com.dev.mobile.eventattendance;
 
-import android.content.Intent;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,6 +7,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.sql.Date;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 public class AttendanceActivity extends AppCompatActivity {
 
