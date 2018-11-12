@@ -16,6 +16,6 @@ public class benefitsData {
     public int doesReset;
     public String resetTime;
 
-    public void setBenefitsName(int newBenefitsName) {}
+    public void setBenefitsName(int newBenefitsName) {} //the db uses this.
     public int getBenefitsName() {return benefitsName;} //The db uses this.
 }
