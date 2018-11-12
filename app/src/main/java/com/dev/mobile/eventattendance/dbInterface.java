@@ -9,7 +9,9 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-//NOTE: Before using this, make sure that you create the database by calling Room.databaseBuilder().
+//NOTE: Before using this, make sure that you create the database by with this code:
+//  AppDatabase db = Room.databaseBuilder(getApplicationContext(),AppDatabase.class, "database-name").build();
+//
 //NOTE: Use these functions (listed under the @query statements) to access the database.
 
 @Dao
