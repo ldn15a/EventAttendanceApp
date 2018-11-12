@@ -1,9 +1,7 @@
 package com.dev.mobile.eventattendance;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-
-import java.sql.Date;
 
 public class AttendanceActivity extends AppCompatActivity {
 
