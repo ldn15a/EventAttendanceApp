@@ -19,5 +19,12 @@ public class MenuActivity extends AppCompatActivity {
                 startActivity(new Intent(MenuActivity.this, AttendanceActivity.class));
             }
         });
+
+        Button materialsButton = (Button) findViewById(R.id.materialsButton);
+        materialsButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(MenuActivity.this, MaterialMenu.class));
+            }
+        });
     }
 }

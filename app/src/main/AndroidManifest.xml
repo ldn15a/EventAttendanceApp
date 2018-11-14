@@ -16,7 +16,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AttendanceActivity"></activity>
+        <activity android:name=".AttendanceActivity" />
+        <activity android:name=".MaterialMenu" />
+        <activity android:name=".PDFViewer"></activity>
     </application>
 
 </manifest>
