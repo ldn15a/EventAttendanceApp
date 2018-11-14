@@ -1,12 +1,12 @@
 package com.dev.mobile.eventattendance;
 import com.github.barteksc.pdfviewer.PDFView;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MaterialMenu extends AppCompatActivity {
 

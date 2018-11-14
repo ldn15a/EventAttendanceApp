@@ -1,9 +1,10 @@
 package com.dev.mobile.eventattendance;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import com.github.barteksc.pdfviewer.PDFView;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class PDFViewer extends AppCompatActivity {
     private String sourceFile = "";
