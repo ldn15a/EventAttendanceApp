@@ -33,7 +33,7 @@ public class MemberProfileActivity extends AppCompatActivity {
         // TODO only apply if the person is present this week
         if  (false) {
             ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
-            constraintLayout.setBackgroundColor(getResources().getColor(R.color.colorPresent));
+            constraintLayout.setBackgroundColor(getColor(R.color.colorPresent));
         }
 
         TextView textViewName = findViewById(R.id.textViewName);
@@ -84,7 +84,7 @@ public class MemberProfileActivity extends AppCompatActivity {
         newTextView.setPadding(48,8,0,8);
 
         if (IS_COLORED) {
-            newTextView.setBackgroundColor(getResources().getColor(R.color.colorDate));
+            newTextView.setBackgroundColor(getColor(R.color.colorDate));
         }
         IS_COLORED = !IS_COLORED;
 

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +88,7 @@ public class AttendanceActivity extends AppCompatActivity {
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO make search bar query database
+                // TODO make searchbar query database
                 // editTextSearch.getText().toString().trim();
             }
         });
@@ -99,17 +100,28 @@ public class AttendanceActivity extends AppCompatActivity {
             final View memberPresentView = new View(this);
             memberPresentView.setId(View.generateViewId());
             memberPresentView.setMinimumWidth(40);
-            memberPresentView.setMinimumHeight(140);
+            memberPresentView.setMinimumHeight(282);
             updatePresentColor(member, memberPresentView);
 
             constraintLayout.addView(memberPresentView);
 
             // Profile
+            // TODO change the image resource with the photo stored in database
+            ImageView profileImage = new ImageView(this);
+            profileImage.setId(View.generateViewId());
+            profileImage.setMaxHeight(250);
+            profileImage.setMinimumHeight(250);
+            profileImage.setMaxWidth(250);
+            profileImage.setMinimumWidth(250);
+            profileImage.setBackgroundResource(android.R.drawable.sym_def_app_icon);
+            constraintLayout.addView(profileImage);
+
             Button memberProfileButton = new Button(this);
             memberProfileButton.setText(member.name);
             memberProfileButton.setId(View.generateViewId());
             memberProfileButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
+                    // TODO when all data is stored in database remove the .putExtra's
                     Intent memberProfileIntent = new Intent(AttendanceActivity.this,MemberProfileActivity.class);
                     memberProfileIntent.putExtra("name",member.name);
                     memberProfileIntent.putExtra("benefits",member.benefits);
@@ -153,15 +165,15 @@ public class AttendanceActivity extends AppCompatActivity {
 
             // Button to record date
             Button recordDateButton = new Button(this);
-            recordDateButton.setText("Record");
+            recordDateButton.setText("Record Presence");
             recordDateButton.setId(View.generateViewId());
             recordDateButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    member.addDate();
                     if (!member.isPresent()) {
                         member.addBenefit();
                         benefitsCounter.setText(Integer.toString(member.benefits));
                     }
+                    member.addDate();
                     updatePresentColor(member, memberPresentView);
                 }
             });
@@ -178,33 +190,36 @@ public class AttendanceActivity extends AppCompatActivity {
                 set.connect(memberPresentView.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 0);
             }
 
-            set.centerVertically(memberProfileButton.getId(), memberPresentView.getId());
-            set.connect(memberProfileButton.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT, 32);
+            set.connect(profileImage.getId(), ConstraintSet.LEFT, memberPresentView.getId(), ConstraintSet.LEFT, 16);
+            set.connect(profileImage.getId(), ConstraintSet.TOP, memberPresentView.getId(), ConstraintSet.TOP, 16);
 
-            set.centerVertically(benefitsRemoveButton.getId(), memberProfileButton.getId());
-            set.connect(benefitsRemoveButton.getId(), ConstraintSet.LEFT, memberProfileButton.getId(), ConstraintSet.RIGHT, 16);
+            set.connect(memberProfileButton.getId(), ConstraintSet.LEFT, profileImage.getId(), ConstraintSet.RIGHT, 8);
+            set.connect(memberProfileButton.getId(), ConstraintSet.TOP, profileImage.getId(), ConstraintSet.TOP);
+
+            set.connect(benefitsRemoveButton.getId(), ConstraintSet.TOP, memberProfileButton.getId(), ConstraintSet.BOTTOM, 8);
+            set.connect(benefitsRemoveButton.getId(), ConstraintSet.LEFT, memberProfileButton.getId(), ConstraintSet.LEFT);
             set.constrainWidth(benefitsRemoveButton.getId(),128);
 
-            set.centerVertically(benefitsCounter.getId(), memberProfileButton.getId());
+            set.centerVertically(benefitsCounter.getId(), benefitsRemoveButton.getId());
             set.connect(benefitsCounter.getId(), ConstraintSet.LEFT, benefitsRemoveButton.getId(), ConstraintSet.RIGHT, 16);
 
-            set.centerVertically(benefitsAddButton.getId(), memberProfileButton.getId());
+            set.centerVertically(benefitsAddButton.getId(), benefitsRemoveButton.getId());
             set.connect(benefitsAddButton.getId(), ConstraintSet.LEFT, benefitsCounter.getId(), ConstraintSet.RIGHT, 16);
             set.constrainWidth(benefitsAddButton.getId(),128);
 
-            set.centerVertically(recordDateButton.getId(), memberProfileButton.getId());
+            set.centerVertically(recordDateButton.getId(), benefitsRemoveButton.getId());
             set.connect(recordDateButton.getId(), ConstraintSet.LEFT, benefitsAddButton.getId(), ConstraintSet.RIGHT, 16);
 
             set.applyTo(constraintLayout);
 
-            // Iterate button
+            // Iterate view
             previousMemberView = memberPresentView;
         }
     }
 
     public void updatePresentColor(Member member, View v) {
         if (member.isPresent()) {
-            v.setBackgroundColor(getResources().getColor(R.color.colorPresent));
+            v.setBackgroundColor(getColor(R.color.colorPresent));
         }
     }
 }
