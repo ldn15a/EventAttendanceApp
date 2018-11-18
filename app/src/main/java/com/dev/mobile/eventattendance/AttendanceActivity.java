@@ -7,34 +7,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Switch;
+import android.widget.EditText;
 import android.widget.TextView;
-
-import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 
 public class AttendanceActivity extends AppCompatActivity {
 
+    // TODO store and retrieve this value from the database
+    private static final int REFRESH_PERIOD = 7;
+
     private class Member {
-        String name;        int benefits;
-        String latest_date;
-        String[] dates;
+        String name;
+        int benefits;
+        ArrayList<Date> dates;
 
-        public Member(String _name, String _latest_date, String[] _dates) {
+        public Member(String _name, Date[] _dates) {
             name = _name;
-            benefits = 0;
-            latest_date = _latest_date;
-            dates = _dates;
-        }
-        public Member(String _name, int _benefits, String _latest_date, String[] _dates) {
-            name = _name;
-            benefits = _benefits;
-            latest_date = _latest_date;
-            dates = _dates;
+            benefits = _dates != null ? _dates.length : 0;
+            dates = new ArrayList<>(Arrays.asList(_dates));
         }
 
-        public void addDate(String date) {
-            dates[dates.length] = latest_date;
-            latest_date = date;
+        public void addDate() {
+            dates.add(new Date());
         }
 
         public void addBenefit() {
@@ -46,23 +43,34 @@ public class AttendanceActivity extends AppCompatActivity {
                 benefits--;
             }
         }
+
+        public boolean isPresent() {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(dates.get(dates.size() -1));
+            calendar.add(Calendar.DAY_OF_YEAR, REFRESH_PERIOD);
+            Date expire_date = calendar.getTime();
+            return expire_date.after(new Date());
+        }
     }
 
     private Member[] members = {
-            new Member("Karen Cukrowski","2018-10-23", new String[] {"2018-6-1"}),
-            new Member("Nathan Fillian","2018-10-23", new String[] {"2018-6-1", "2018-8-9"}),
-            new Member("Scarlet Johansen","2018-10-23", new String[] {"2018-5-2"}),
-            new Member("Captain America","2018-10-23", new String[] {"2018-5-2"}),
-            new Member("Dr. Aquino","2018-9-23", new String[] {"2018-3-20", "2018-5-7"}),
-            new Member("JRR Tolkien","2018-6-8", new String[] {"2018-5-14"}),
-            new Member("Elon Musk","2017-1-11", new String[] {"2016-3-25"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
+            new Member("Karen Cukrowski", new Date[] {new Date(118, 11, 6)}),
+            new Member("James Prather", new Date[] {new Date(118, 9, 9)}),
+            new Member("Nathan Fillian", new Date[] {new Date(118, 10, 21)}),
+            new Member("Rich Tanner", new Date[] {new Date(118, 11, 15)}),
+            new Member("Jesse James", new Date[] {new Date(118, 11, 3)}),
+            new Member("Scarlet Johansen", new Date[] {new Date(118, 5, 1)}),
+            new Member("Wonder Woman", new Date[] {new Date(118, 7, 23)}),
+            new Member("Venom", new Date[] {new Date(2018, 9, 10)}),
+            new Member("Katie Perry", new Date[] {new Date(118, 11, 14)}),
+            new Member("Haley Kiyoko", new Date[] {new Date(118, 2, 19)}),
+            new Member("Jeff Goldblume", new Date[] {new Date(117, 10, 8)}),
+            new Member("Chris Pratt", new Date[] {new Date(118, 9, 26)}),
+            new Member("Chris Hemsworth", new Date[] {new Date(118, 11, 1)}),
+            new Member("Chris Evans", new Date[] {new Date(118, 9, 5)}),
+            new Member("Christopher Rabbit", new Date[] {new Date(118, 11, 1)}),
+            new Member("Bugs Bunny", new Date[] {new Date(118, 11, 8)}),
+            new Member("Steven Rodgers", new Date[] {new Date(118, 11, 12)}),
     };
 
     @Override
@@ -70,30 +78,50 @@ public class AttendanceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance);
 
-        // Get all the member data from database
-        // temporarily we're storing that in the members variable instead
+        // TODO replace members variable with people stored in database
 
-        // TODO add a search bar
-        // TODO when the bar is searched, filter members that match the name
+        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
 
-        // Create a new name button and toggle button pair for each user
-        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.layout);
+        final EditText editTextSearch = findViewById(R.id.editTextSearch);
+        Button buttonSearch = findViewById(R.id.buttonSearch);
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO make search bar query database
+                // editTextSearch.getText().toString().trim();
+            }
+        });
 
-        Button previousMemberButton = null;
+        View previousMemberView = null;
 
         for (final Member member : members) {
+            // View
+            final View memberPresentView = new View(this);
+            memberPresentView.setId(View.generateViewId());
+            memberPresentView.setMinimumWidth(40);
+            memberPresentView.setMinimumHeight(140);
+            updatePresentColor(member, memberPresentView);
 
-            // Main button
-            Button memberButton = new Button(this);
-            memberButton.setText(member.name);
-            memberButton.setId(View.generateViewId());
-            memberButton.setOnClickListener(new View.OnClickListener() {
+            constraintLayout.addView(memberPresentView);
+
+            // Profile
+            Button memberProfileButton = new Button(this);
+            memberProfileButton.setText(member.name);
+            memberProfileButton.setId(View.generateViewId());
+            memberProfileButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    //startActivity(new Intent(AttendanceActivity.this,MemberActivity.class));
+                    Intent memberProfileIntent = new Intent(AttendanceActivity.this,MemberProfileActivity.class);
+                    memberProfileIntent.putExtra("name",member.name);
+                    memberProfileIntent.putExtra("benefits",member.benefits);
+                    ArrayList<String> dates = new ArrayList<>();
+                    for (Date d : member.dates) {
+                        dates.add(d.toString());
+                    }
+                    memberProfileIntent.putExtra("dates", dates.toArray(new String[dates.size()]));
+                    startActivity(memberProfileIntent);
                 }
             });
-            constraintLayout.addView(memberButton);
-
+            constraintLayout.addView(memberProfileButton);
 
             // Benefits
             final TextView benefitsCounter = new TextView(this);
@@ -123,48 +151,60 @@ public class AttendanceActivity extends AppCompatActivity {
             });
             constraintLayout.addView(benefitsAddButton);
 
-            // Switch to record date
-            Switch switchRecordDate = new Switch(this);
-            switchRecordDate.setId(View.generateViewId());
-            // toggle should stay switched or not based on the reset date
-            // if toggle is switched on manually
-            // add date to database
-            // if toggle is switched off manually
-            // remove the latest date from database
-            constraintLayout.addView(switchRecordDate);
+            // Button to record date
+            Button recordDateButton = new Button(this);
+            recordDateButton.setText("Record");
+            recordDateButton.setId(View.generateViewId());
+            recordDateButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    member.addDate();
+                    if (!member.isPresent()) {
+                        member.addBenefit();
+                        benefitsCounter.setText(Integer.toString(member.benefits));
+                    }
+                    updatePresentColor(member, memberPresentView);
+                }
+            });
+            constraintLayout.addView(recordDateButton);
 
             // Create constraints
             ConstraintSet set = new ConstraintSet();
             set.clone(constraintLayout);
 
-            set.connect(memberButton.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT, 32);
-            if (previousMemberButton != null) {
-                set.connect(memberButton.getId(), ConstraintSet.TOP, previousMemberButton.getId(), ConstraintSet.BOTTOM, 32);
+            set.connect(memberPresentView.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT);
+            if (previousMemberView != null) {
+                set.connect(memberPresentView.getId(), ConstraintSet.TOP, previousMemberView.getId(), ConstraintSet.BOTTOM, 0);
             } else {
-                set.connect(memberButton.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 32);
+                set.connect(memberPresentView.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 0);
             }
 
-            set.centerVertically(benefitsRemoveButton.getId(), memberButton.getId());
-            set.connect(benefitsRemoveButton.getId(), ConstraintSet.LEFT, memberButton.getId(), ConstraintSet.RIGHT, 16);
+            set.centerVertically(memberProfileButton.getId(), memberPresentView.getId());
+            set.connect(memberProfileButton.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT, 32);
+
+            set.centerVertically(benefitsRemoveButton.getId(), memberProfileButton.getId());
+            set.connect(benefitsRemoveButton.getId(), ConstraintSet.LEFT, memberProfileButton.getId(), ConstraintSet.RIGHT, 16);
             set.constrainWidth(benefitsRemoveButton.getId(),128);
 
-            set.centerVertically(benefitsCounter.getId(), memberButton.getId());
+            set.centerVertically(benefitsCounter.getId(), memberProfileButton.getId());
             set.connect(benefitsCounter.getId(), ConstraintSet.LEFT, benefitsRemoveButton.getId(), ConstraintSet.RIGHT, 16);
 
-            set.centerVertically(benefitsAddButton.getId(), memberButton.getId());
+            set.centerVertically(benefitsAddButton.getId(), memberProfileButton.getId());
             set.connect(benefitsAddButton.getId(), ConstraintSet.LEFT, benefitsCounter.getId(), ConstraintSet.RIGHT, 16);
             set.constrainWidth(benefitsAddButton.getId(),128);
 
-            set.centerVertically(switchRecordDate.getId(), memberButton.getId());
-            set.connect(switchRecordDate.getId(), ConstraintSet.LEFT, benefitsAddButton.getId(), ConstraintSet.RIGHT, 16);
+            set.centerVertically(recordDateButton.getId(), memberProfileButton.getId());
+            set.connect(recordDateButton.getId(), ConstraintSet.LEFT, benefitsAddButton.getId(), ConstraintSet.RIGHT, 16);
 
             set.applyTo(constraintLayout);
 
             // Iterate button
-            previousMemberButton = memberButton;
+            previousMemberView = memberPresentView;
         }
+    }
 
-        // also create a new page for the member which shows their history
-
+    public void updatePresentColor(Member member, View v) {
+        if (member.isPresent()) {
+            v.setBackgroundColor(getResources().getColor(R.color.colorPresent));
+        }
     }
 }
