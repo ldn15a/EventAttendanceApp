@@ -10,17 +10,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MaterialMenu extends AppCompatActivity {
 
+    public AppDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_material_menu);
 
-        searchForFiles ();
+        db = AppDatabase.getAppDatabase(getApplicationContext());
 
-        final String [] sourceFiles = {
+        final String[] sourceFiles = db.dbInterface().getMaterials();
+
+        /*final String [] sourceFiles = {
                 "MobileAppProposal.pdf",
                 "MobileAppProposal2.pdf"
-        };
+        };*/
 
         final Button pdfButton1 = (Button) findViewById(R.id.PDF1Button);
         pdfButton1.setOnClickListener(new View.OnClickListener() {

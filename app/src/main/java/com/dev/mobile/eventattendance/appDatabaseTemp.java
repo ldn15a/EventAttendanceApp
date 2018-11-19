@@ -1,6 +1,9 @@
 package com.dev.mobile.eventattendance;
 
 import android.content.Context;
+import android.os.Environment;
+
+import java.io.File;
 
 import androidx.room.Database;
 import androidx.room.Room;
@@ -20,6 +23,13 @@ public abstract class AppDatabase extends RoomDatabase{
                             .allowMainThreadQueries()
                             .fallbackToDestructiveMigration()
                             .build();
+        }
+        String path = Environment.getExternalStorageDirectory().toString()+"/Pictures";
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        for (File file : files)
+        {
+            INSTANCE.dbInterface().insertMaterial(file.getName());
         }
         return INSTANCE;
     }

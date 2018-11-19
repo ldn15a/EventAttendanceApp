@@ -34,20 +34,23 @@ public interface dbInterface {
     @Query ("SELECT MAX(ID) FROM Member")
     int newestMemberID(); //returns the member with the largest ID.
 
-    @Query("SELECT * FROM attendanceEntry where member = :memberID")
+    @Query("SELECT * FROM AttendanceEntry where member = :memberID")
     AttendanceEntry[] memberAttendance(int memberID); //returns all cases where the Member has attended class.
 
-    @Query("SELECT * FROM attendanceEntry where ID = :id")
+    @Query("SELECT * FROM AttendanceEntry where ID = :id")
     AttendanceEntry findEntryByID(int id);
 
-    @Query("SELECT COUNT(*) FROM attendanceEntry where member = :memberID")
+    @Query("SELECT COUNT(*) FROM AttendanceEntry where member = :memberID")
     int countMemberAttendance(int memberID); //returns all cases where the Member has
 
-    @Query("SELECT MAX(ID) FROM attendanceEntry")
+    @Query("SELECT MAX(ID) FROM AttendanceEntry")
     int newestEntryID(); //returns the attendance entry with the largest ID.
 
-    @Query("SELECT MAX(ID) FROM attendanceEntry where member = :memberID")
+    @Query("SELECT MAX(ID) FROM AttendanceEntry where member = :memberID")
     int newestEntryID(int memberID); //returns the most recent attendance entry for this member
+
+    @Query("SELECT * FROM Material")
+    String[] getMaterials(); //returns all PDF files stored in the DB.
 
     //adding data to the database
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -61,6 +64,9 @@ public interface dbInterface {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertLesson(Lesson newLesson);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertMaterial(String material);
 
     //changing data in the database
     @Update

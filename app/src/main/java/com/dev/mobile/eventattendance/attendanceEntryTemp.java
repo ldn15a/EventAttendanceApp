@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey;
 @Entity
 public class AttendanceEntry {
 
-    AttendanceEntry() {} //DON"T USE THIS!
+    AttendanceEntry() {} //DON"T USE THIS!!!
     AttendanceEntry(AppDatabase db) {ID = db.dbInterface().newestEntryID() + 1; db.dbInterface().insertAttendance(this);}
     AttendanceEntry(AppDatabase db, int memberID, String lessonName, String date) {ID = db.dbInterface().newestEntryID() + 1; member = memberID; lesson = lessonName; dateAttended = date; db.dbInterface().insertAttendance(this);}
 
