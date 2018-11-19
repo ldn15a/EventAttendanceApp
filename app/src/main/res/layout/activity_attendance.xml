@@ -7,11 +7,14 @@
     tools:context=".AttendanceActivity"
     android:id="@+id/scrollView">
 
-    <androidx.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layout">
+        android:layout_height="wrap_content">
 
-    </androidx.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
