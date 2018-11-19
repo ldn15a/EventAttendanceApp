@@ -52,9 +52,9 @@ public class AttendanceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_attendance);
 
         db = AppDatabase.getAppDatabase(getApplicationContext());
-        Member[] members = db.dbInterface().getAll();
+        final Member[] members = db.dbInterface().getAll();
 
-        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
+        addMembersToScrollview(members);
 
         final EditText editTextSearch = findViewById(R.id.editTextSearch);
         Button buttonSearch = findViewById(R.id.buttonSearch);
@@ -62,11 +62,32 @@ public class AttendanceActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String searchText = editTextSearch.getText().toString().trim();
-                Member[] results = db.dbInterface().findByName(searchText);
-                // TODO swap out the members list with this results list
+                if (searchText.isEmpty()) {
+                    clearScrollview();
+                    addMembersToScrollview(members);
+                } else {
+                    Member[] results = null;
+
+                    String[] name = searchText.split("\\s+");
+                    if (name.length == 1) {
+                        results = db.dbInterface().findByNames(name[0]);
+                    } else {
+                        results = db.dbInterface().findByNames(name[0], name[1]);
+                    }
+                    clearScrollview();
+                    addMembersToScrollview(results);
+                }
             }
         });
+    }
 
+    public void clearScrollview() {
+        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
+        constraintLayout.removeAllViewsInLayout();
+    }
+
+    public void addMembersToScrollview(Member[] members) {
+        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
         View previousMemberView = null;
 
         for (final Member member : members) {

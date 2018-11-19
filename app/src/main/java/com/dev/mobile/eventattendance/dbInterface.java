@@ -28,8 +28,14 @@ public interface dbInterface {
     @Query("SELECT * FROM Member where ID = :memberID")
     Member findByID(int memberID); //returns the member stored in the database with the given ID.
 
-    @Query ("SELECT * FROM Member WHERE firstName+' '+lastName LIKE :name LIMIT 1")
-    Member[] findByName(String name); //finds a Member by it's first and last name. BEWARE: names are not guaranteed to be unique.
+    @Query ("SELECT * FROM Member WHERE firstName LIKE :firstName AND lastName LIKE :lastName")
+    Member[] findByName(String firstName, String lastName); //finds a Member by it's first and last name. BEWARE: names are not guaranteed to be unique.
+
+    @Query ("SELECT * FROM Member WHERE firstName LIKE :firstName OR lastName LIKE :lastName")
+    Member[] findByNames(String firstName, String lastName); //finds all members by first or last name
+
+    @Query ("SELECT * FROM Member WHERE firstName LIKE :name OR lastName LIKE :name")
+    Member[] findByNames(String name); //finds all members by first or last name
 
     @Query ("SELECT MAX(ID) FROM Member")
     int newestMemberID(); //returns the member with the largest ID.
