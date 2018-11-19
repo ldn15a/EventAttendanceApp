@@ -19,6 +19,8 @@ public class MaterialMenu extends AppCompatActivity {
     {
             //  Not hardcoded when function works and is present
             "MobileAppProposal.pdf",
+            "MobileAppProposal2.pdf",
+            "MobileAppProposal2.pdf",
             "MobileAppProposal2.pdf"
     };
 
@@ -56,6 +58,14 @@ public class MaterialMenu extends AppCompatActivity {
             } else {
                 constraints.connect(newButton.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 32);
             }
+
+            //  Wanted to put them side by side in scroll view as this size, but had trouble figuring it out
+            //  constraints.constrainHeight(newButton.getId (), 800);
+            //  constraints.constrainWidth(newButton.getId (), 450);
+
+            constraints.centerHorizontally(newButton.getId(), constraintLayout.getId ());
+            constraints.constrainHeight(newButton.getId (), 1400);
+            constraints.constrainWidth(newButton.getId (), 900);
 
             constraints.applyTo(constraintLayout);
             previousButton = newButton;
