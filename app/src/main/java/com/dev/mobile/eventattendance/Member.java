@@ -1,5 +1,9 @@
 package com.dev.mobile.eventattendance;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import androidx.annotation.NonNull;
 
 import androidx.room.Entity;
@@ -24,5 +28,26 @@ public class Member {
     public int benefits;
     public String resetTime;
 
-    public void updateDB(AppDatabase db) {db.dbInterface().insertMember(this);}
+    public void updateDB(AppDatabase db) {
+        if (db.dbInterface().findByID(ID) != null) {
+            db.dbInterface().insertMember(this);
+        } else {
+            db.dbInterface().updateMember(this);
+        }
+    }
+
+    public boolean isPresent() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+        try
+        {
+            Date resetDate = simpleDateFormat.parse(resetTime);
+            if (new Date().after(resetDate))
+                return false;
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
 }
