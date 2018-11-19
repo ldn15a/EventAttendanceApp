@@ -32,7 +32,6 @@ public class MaterialMenu extends AppCompatActivity {
 
         for (int i = 0; i < fileNames.length; i++) {
             Button newButton = new Button(this);
-            print (i);
             newButton.setText(fileNames [i]);
             newButton.setId(View.generateViewId());
 
@@ -61,25 +60,5 @@ public class MaterialMenu extends AppCompatActivity {
             constraints.applyTo(constraintLayout);
             previousButton = newButton;
         }
-    }
-
-    private void print (String str)
-    {
-        for (int i = 0; i < 5; i++)
-        {
-            System.out.println ("\n\n-");
-        }
-
-        System.out.println (str);
-    }
-
-    private void print (int i)
-    {
-        for (int j = 0; j < 5; j++)
-        {
-            System.out.println ("\n\n-");
-        }
-
-        System.out.println (i);
     }
 }
