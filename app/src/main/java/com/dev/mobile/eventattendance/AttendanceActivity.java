@@ -1,104 +1,122 @@
 package com.dev.mobile.eventattendance;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Switch;
-import android.widget.TextView;
-
-import java.sql.Date;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.room.Room;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class AttendanceActivity extends AppCompatActivity {
 
-    private class Member {
-        String name;        int benefits;
-        String latest_date;
-        String[] dates;
+    private static final int REFRESH_PERIOD = 7;
+    public AppDatabase db;
 
-        public Member(String _name, String _latest_date, String[] _dates) {
-            name = _name;
-            benefits = 0;
-            latest_date = _latest_date;
-            dates = _dates;
-        }
-        public Member(String _name, int _benefits, String _latest_date, String[] _dates) {
-            name = _name;
-            benefits = _benefits;
-            latest_date = _latest_date;
-            dates = _dates;
-        }
+    public void newResetTime(Member member)
+    {
+        int latestDateID = db.dbInterface().newestEntryID(member.ID);
+        AttendanceEntry latestDate = db.dbInterface().findEntryByID(latestDateID);
 
-        public void addDate(String date) {
-            dates[dates.length] = latest_date;
-            latest_date = date;
-        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        try
+        {
+            Calendar c = Calendar.getInstance();
+            c.setTime(simpleDateFormat.parse(latestDate.dateAttended));
+            c.add(Calendar.DATE, REFRESH_PERIOD);
+            String resetDate = simpleDateFormat.format(c.getTime());
 
-        public void addBenefit() {
-            benefits++;
+            member.resetTime = resetDate;
         }
-
-        public void removeBenefit() {
-            if(benefits > 0) {
-                benefits--;
-            }
+        catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 
-    private Member[] members = {
-            new Member("Karen Cukrowski","2018-10-23", new String[] {"2018-6-1"}),
-            new Member("Nathan Fillian","2018-10-23", new String[] {"2018-6-1", "2018-8-9"}),
-            new Member("Scarlet Johansen","2018-10-23", new String[] {"2018-5-2"}),
-            new Member("Captain America","2018-10-23", new String[] {"2018-5-2"}),
-            new Member("Dr. Aquino","2018-9-23", new String[] {"2018-3-20", "2018-5-7"}),
-            new Member("JRR Tolkien","2018-6-8", new String[] {"2018-5-14"}),
-            new Member("Elon Musk","2017-1-11", new String[] {"2016-3-25"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-            new Member("Jeff Goldblume","2018-9-23", new String[] {"2018-7-12"}),
-    };
+    public static ArrayList<TextView> benefits = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance);
 
-        // Get all the member data from database
-        // temporarily we're storing that in the members variable instead
+        db = AppDatabase.getAppDatabase(getApplicationContext());
+        Member[] members = db.dbInterface().getAll();
 
-        // TODO add a search bar
-        // TODO when the bar is searched, filter members that match the name
+        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
 
-        // Create a new name button and toggle button pair for each user
-        ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.layout);
+        final EditText editTextSearch = findViewById(R.id.editTextSearch);
+        Button buttonSearch = findViewById(R.id.buttonSearch);
+        buttonSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String searchText = editTextSearch.getText().toString().trim();
+                Member[] results = db.dbInterface().findByName(searchText);
+                // TODO swap out the members list with this results list
+            }
+        });
 
-        Button previousMemberButton = null;
+        View previousMemberView = null;
 
         for (final Member member : members) {
+            // View
+            final View memberPresentView = new View(this);
+            memberPresentView.setId(View.generateViewId());
+            memberPresentView.setMinimumHeight(282);
+            updatePresentColor(member, memberPresentView);
 
-            // Main button
-            Button memberButton = new Button(this);
-            memberButton.setText(member.name);
-            memberButton.setId(View.generateViewId());
-            memberButton.setOnClickListener(new View.OnClickListener() {
+            constraintLayout.addView(memberPresentView);
+
+            // Profile
+            // TODO change the image resource with the photo stored in database
+            ImageView profileImage = new ImageView(this);
+            profileImage.setId(View.generateViewId());
+            profileImage.setMaxHeight(250);
+            profileImage.setMinimumHeight(250);
+            profileImage.setMaxWidth(250);
+            profileImage.setMinimumWidth(250);
+            if (member.picture != null) {
+                Context context = profileImage.getContext();
+                int id = context.getResources().getIdentifier(member.picture, "drawable", context.getPackageName());
+                profileImage.setBackgroundResource(id);
+            }
+            else
+                profileImage.setBackgroundResource(android.R.drawable.sym_def_app_icon);
+
+            constraintLayout.addView(profileImage);
+
+            String memberName = member.firstName + " ";
+            if (member.lastName != null)
+                memberName += member.lastName;
+
+            Button memberProfileButton = new Button(this);
+            memberProfileButton.setText(memberName);
+            memberProfileButton.setId(View.generateViewId());
+            memberProfileButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    //startActivity(new Intent(AttendanceActivity.this,MemberActivity.class));
+                    Intent memberProfileIntent = new Intent(AttendanceActivity.this,MemberProfileActivity.class);
+                    memberProfileIntent.putExtra("MEMBER_ID",member.ID);
+                    startActivity(memberProfileIntent);
                 }
             });
-            constraintLayout.addView(memberButton);
-
+            constraintLayout.addView(memberProfileButton);
 
             // Benefits
             final TextView benefitsCounter = new TextView(this);
             benefitsCounter.setText(Integer.toString(member.benefits));
             benefitsCounter.setId(View.generateViewId());
+            benefits.add(benefitsCounter);
             constraintLayout.addView(benefitsCounter);
 
             Button benefitsRemoveButton = new Button(this);
@@ -106,8 +124,9 @@ public class AttendanceActivity extends AppCompatActivity {
             benefitsRemoveButton.setId(View.generateViewId());
             benefitsRemoveButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    member.removeBenefit();
+                    member.benefits -= 1;
                     benefitsCounter.setText(Integer.toString(member.benefits));
+                    member.updateDB(db);
                 }
             });
             constraintLayout.addView(benefitsRemoveButton);
@@ -117,54 +136,77 @@ public class AttendanceActivity extends AppCompatActivity {
             benefitsAddButton.setId(View.generateViewId());
             benefitsAddButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    member.addBenefit();
+                    member.benefits += 1;
                     benefitsCounter.setText(Integer.toString(member.benefits));
+                    member.updateDB(db);
                 }
             });
             constraintLayout.addView(benefitsAddButton);
 
-            // Switch to record date
-            Switch switchRecordDate = new Switch(this);
-            switchRecordDate.setId(View.generateViewId());
-            // toggle should stay switched or not based on the reset date
-            // if toggle is switched on manually
-            // add date to database
-            // if toggle is switched off manually
-            // remove the latest date from database
-            constraintLayout.addView(switchRecordDate);
+            // Button to record date
+            Button recordDateButton = new Button(this);
+            recordDateButton.setText("Record Presence");
+            recordDateButton.setId(View.generateViewId());
+            recordDateButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if (!member.isPresent()) {
+                        member.benefits += 1;
+                        member.updateDB(db);
+                        AttendanceEntry entry = new AttendanceEntry(db, member.ID, "empty");
+                        entry.updateDB(db);
+                        newResetTime(member);
+                        benefitsCounter.setText(Integer.toString(member.benefits));
+                    } else {
+                        AttendanceEntry entry = new AttendanceEntry(db, member.ID, "empty");
+                        entry.updateDB(db);
+                    }
+
+                    updatePresentColor(member, memberPresentView);
+                }
+            });
+            constraintLayout.addView(recordDateButton);
 
             // Create constraints
             ConstraintSet set = new ConstraintSet();
             set.clone(constraintLayout);
 
-            set.connect(memberButton.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT, 32);
-            if (previousMemberButton != null) {
-                set.connect(memberButton.getId(), ConstraintSet.TOP, previousMemberButton.getId(), ConstraintSet.BOTTOM, 32);
+            set.connect(memberPresentView.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT);
+            if (previousMemberView != null) {
+                set.connect(memberPresentView.getId(), ConstraintSet.TOP, previousMemberView.getId(), ConstraintSet.BOTTOM, 0);
             } else {
-                set.connect(memberButton.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 32);
+                set.connect(memberPresentView.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 0);
             }
 
-            set.centerVertically(benefitsRemoveButton.getId(), memberButton.getId());
-            set.connect(benefitsRemoveButton.getId(), ConstraintSet.LEFT, memberButton.getId(), ConstraintSet.RIGHT, 16);
+            set.connect(profileImage.getId(), ConstraintSet.LEFT, memberPresentView.getId(), ConstraintSet.LEFT, 16);
+            set.connect(profileImage.getId(), ConstraintSet.TOP, memberPresentView.getId(), ConstraintSet.TOP, 16);
+
+            set.connect(memberProfileButton.getId(), ConstraintSet.LEFT, profileImage.getId(), ConstraintSet.RIGHT, 8);
+            set.connect(memberProfileButton.getId(), ConstraintSet.TOP, profileImage.getId(), ConstraintSet.TOP);
+
+            set.connect(benefitsRemoveButton.getId(), ConstraintSet.TOP, memberProfileButton.getId(), ConstraintSet.BOTTOM, 8);
+            set.connect(benefitsRemoveButton.getId(), ConstraintSet.LEFT, memberProfileButton.getId(), ConstraintSet.LEFT);
             set.constrainWidth(benefitsRemoveButton.getId(),128);
 
-            set.centerVertically(benefitsCounter.getId(), memberButton.getId());
+            set.centerVertically(benefitsCounter.getId(), benefitsRemoveButton.getId());
             set.connect(benefitsCounter.getId(), ConstraintSet.LEFT, benefitsRemoveButton.getId(), ConstraintSet.RIGHT, 16);
 
-            set.centerVertically(benefitsAddButton.getId(), memberButton.getId());
+            set.centerVertically(benefitsAddButton.getId(), benefitsRemoveButton.getId());
             set.connect(benefitsAddButton.getId(), ConstraintSet.LEFT, benefitsCounter.getId(), ConstraintSet.RIGHT, 16);
             set.constrainWidth(benefitsAddButton.getId(),128);
 
-            set.centerVertically(switchRecordDate.getId(), memberButton.getId());
-            set.connect(switchRecordDate.getId(), ConstraintSet.LEFT, benefitsAddButton.getId(), ConstraintSet.RIGHT, 16);
+            set.centerVertically(recordDateButton.getId(), benefitsRemoveButton.getId());
+            set.connect(recordDateButton.getId(), ConstraintSet.LEFT, benefitsAddButton.getId(), ConstraintSet.RIGHT, 16);
 
             set.applyTo(constraintLayout);
 
-            // Iterate button
-            previousMemberButton = memberButton;
+            // Iterate view
+            previousMemberView = memberPresentView;
         }
+    }
 
-        // also create a new page for the member which shows their history
-
+    public void updatePresentColor(Member member, View v) {
+        if (member.isPresent()) {
+            v.setBackgroundColor(getColor(R.color.colorPresent));
+        }
     }
 }

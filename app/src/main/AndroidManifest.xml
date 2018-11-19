@@ -17,8 +17,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".AttendanceActivity" />
+        <activity android:name=".MemberProfileActivity"/>
         <activity android:name=".MaterialMenu" />
-        <activity android:name=".PDFViewer"></activity>
+        <activity android:name=".PDFViewer"/>
     </application>
 
 </manifest>
