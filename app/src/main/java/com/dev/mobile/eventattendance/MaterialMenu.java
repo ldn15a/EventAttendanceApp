@@ -7,42 +7,64 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 
 public class MaterialMenu extends AppCompatActivity {
+    private String [] fileNames = /* db.getFileNames (); */
+    {
+            //  Not hardcoded when function works and is present
+            "MobileAppProposal.pdf",
+            "MobileAppProposal2.pdf",
+            "MobileAppProposal2.pdf",
+            "MobileAppProposal2.pdf"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_material_menu);
 
-        searchForFiles ();
+        ConstraintLayout constraintLayout = findViewById(R.id.materialLayout);
+        Button previousButton = null;
 
-        final String [] sourceFiles = {
-                "MobileAppProposal.pdf",
-                "MobileAppProposal2.pdf"
-        };
+        for (int i = 0; i < fileNames.length; i++) {
+            Button newButton = new Button(this);
+            newButton.setText(fileNames [i]);
+            newButton.setId(View.generateViewId());
 
-        final Button pdfButton1 = (Button) findViewById(R.id.PDF1Button);
-        pdfButton1.setOnClickListener(new View.OnClickListener() {
-            public void onClick (View v){
-                Intent i = new Intent(MaterialMenu.this, PDFViewer.class);
-                i.putExtra("src", sourceFiles [0]);
-                startActivity(i);
+            final int iCopy = i;    //  This line is really dumb but needed
+            newButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick (View v){
+                    Intent intent = new Intent(MaterialMenu.this, PDFViewer.class);
+                    intent.putExtra("src", fileNames [iCopy]);
+                    startActivity(intent);
+                }
+            });
+
+            constraintLayout.addView(newButton);
+
+            //  Add constraints to the button
+            ConstraintSet constraints = new ConstraintSet();
+            constraints.clone(constraintLayout);
+
+            constraints.connect(newButton.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT, 32);
+            if (previousButton != null) {
+                constraints.connect(newButton.getId(), ConstraintSet.TOP, previousButton.getId(), ConstraintSet.BOTTOM, 32);
+            } else {
+                constraints.connect(newButton.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 32);
             }
-        });
 
-        final Button pdfButton2 = (Button) findViewById(R.id.PDF2Button);
-        pdfButton2.setOnClickListener(new View.OnClickListener() {
-            public void onClick (View v){
-                Intent i = new Intent(MaterialMenu.this, PDFViewer.class);
-                i.putExtra("src", sourceFiles [1]);
-                startActivity(i);
-            }
-        });
-    }
+            //  Wanted to put them side by side in scroll view as this size, but had trouble figuring it out
+            //  constraints.constrainHeight(newButton.getId (), 800);
+            //  constraints.constrainWidth(newButton.getId (), 450);
 
-    private void searchForFiles ()
-    {
-        //  Maybe implement later if we want this feature
+            constraints.centerHorizontally(newButton.getId(), constraintLayout.getId ());
+            constraints.constrainHeight(newButton.getId (), 1400);
+            constraints.constrainWidth(newButton.getId (), 900);
+
+            constraints.applyTo(constraintLayout);
+            previousButton = newButton;
+        }
     }
 }
