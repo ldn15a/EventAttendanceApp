@@ -12,7 +12,13 @@ public class AttendanceEntry {
 
     AttendanceEntry() {} //DON"T USE THIS!
     AttendanceEntry(AppDatabase db) {ID = db.dbInterface().newestEntryID() + 1; db.dbInterface().insertAttendance(this);}
-    AttendanceEntry(AppDatabase db, int memberID, String lessonName, String date) {ID = db.dbInterface().newestEntryID() + 1; member = memberID; lesson = lessonName; dateAttended = date; db.dbInterface().insertAttendance(this);}
+    AttendanceEntry(AppDatabase db, int memberID, String lessonName, String date) {
+        ID = db.dbInterface().newestEntryID() + 1;
+        member = memberID;
+        lesson = lessonName;
+        dateAttended = date;
+        db.dbInterface().insertAttendance(this);
+    }
 
     AttendanceEntry(AppDatabase db, int memberID, String lessonName) //creating a date to match the current time on attendance entry.
     {
@@ -21,9 +27,9 @@ public class AttendanceEntry {
         lesson = lessonName;
         db.dbInterface().insertAttendance(this);
 
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dFormat = new SimpleDateFormat("MM/dd/yyyy");
-        dateAttended = dFormat.format(calendar.getTime());
+        dateAttended = simpleDateFormat.format(calendar.getTime());
     }
 
     @PrimaryKey

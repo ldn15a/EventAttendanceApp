@@ -4,42 +4,53 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MemberProfileActivity extends AppCompatActivity {
 
-    public String name = null;
-    public int benefits = 0;
-    public String[] dates = null;
+    public AppDatabase db;
+
+    public Member member = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_member_profile);
 
+        db = AppDatabase.getAppDatabase(getApplicationContext());
+
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
-            name = extras.getString("name");
-            benefits = extras.getInt("benefits");
-            dates = extras.getStringArray("dates");
+            int id = extras.getInt("MEMBER_ID");
+            member = db.dbInterface().findByID(id);
         }
 
-        // TODO only apply if the person is present this week
-        if  (false) {
+        AttendanceEntry[] attendanceList = db.dbInterface().memberAttendance(member.ID);
+        ArrayList<String> dates = new ArrayList<>();
+        for (AttendanceEntry attendance : attendanceList) {
+            dates.add(attendance.dateAttended);
+        }
+
+        if  (member.isPresent()) {
             ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
             constraintLayout.setBackgroundColor(getColor(R.color.colorPresent));
         }
 
         TextView textViewName = findViewById(R.id.textViewName);
+        String name = member.firstName + " " + member.lastName;
         textViewName.setText(name);
 
         final TextView textViewBenefits = findViewById(R.id.textViewBenefits);
-        textViewBenefits.setText("Benefits: " + Integer.toString(benefits));
+        textViewBenefits.setText("Benefits: " + Integer.toString(member.benefits));
 
         for (String date : dates) {
             addDate(date);
@@ -48,28 +59,34 @@ public class MemberProfileActivity extends AppCompatActivity {
         Button buttonAddBenefit = findViewById(R.id.buttonAddBenefit);
         buttonAddBenefit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                benefits++;
-                textViewBenefits.setText("Benefits: " + Integer.toString(benefits));
+                member.benefits++;
+                textViewBenefits.setText("Benefits: " + Integer.toString(member.benefits));
+                member.updateDB(db);
             }
         });
 
         Button buttonRemoveBenefit = findViewById(R.id.buttonRemoveBenefit);
         buttonRemoveBenefit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                benefits--;
-                textViewBenefits.setText("Benefits: " + Integer.toString(benefits));
+                member.benefits--;
+                textViewBenefits.setText("Benefits: " + Integer.toString(member.benefits));
+                member.updateDB(db);
             }
         });
 
         Button buttonRecordDate = findViewById(R.id.buttonRecordDate);
         buttonRecordDate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // TODO only apply if the person is present this week
-                if (false) {
-                    benefits++;
-                    textViewBenefits.setText("Benefits: " + Integer.toString(benefits));
+                if (!member.isPresent()) {
+                    member.benefits++;
+                    textViewBenefits.setText("Benefits: " + Integer.toString(member.benefits));
+                    member.updateDB(db);
                 }
-                addDate(new Date().toString());
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                addDate(simpleDateFormat.format(new Date()));
+                AttendanceEntry entry = new AttendanceEntry(db, member.ID, "empty");
+                entry.updateDB(db);
             }
         });
     }
