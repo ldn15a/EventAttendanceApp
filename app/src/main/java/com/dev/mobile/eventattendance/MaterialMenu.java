@@ -20,14 +20,23 @@ public class MaterialMenu extends AppCompatActivity {
             "MobileAppProposal2.pdf"
     };
 
+    public AppDatabase db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_material_menu);
 
+        db = AppDatabase.getAppDatabase(getApplicationContext());
         ConstraintLayout constraintLayout = findViewById(R.id.materialLayout);
         Button previousButton = null;
 
+        final String[] sourceFiles = db.dbInterface().getMaterials();
+
+        /*final String [] sourceFiles = {
+                "MobileAppProposal.pdf",
+                "MobileAppProposal2.pdf"
+        };*/
         for (int i = 0; i < fileNames.length; i++) {
             Button newButton = new Button(this);
             newButton.setText(fileNames [i]);
