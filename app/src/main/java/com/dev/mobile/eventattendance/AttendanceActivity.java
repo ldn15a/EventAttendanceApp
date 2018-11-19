@@ -3,8 +3,11 @@ package com.dev.mobile.eventattendance;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.room.Room;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,16 +15,25 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
+import com.dev.mobile.eventattendance.benefitsData;
+
+import static android.graphics.drawable.Drawable.createFromPath;
 
 public class AttendanceActivity extends AppCompatActivity {
 
-    // TODO store and retrieve this value from the database
     private static final int REFRESH_PERIOD = 7;
+    public AppDatabase db;
 
+    /*
     private class Member {
         String name;
         int benefits;
@@ -55,8 +67,9 @@ public class AttendanceActivity extends AppCompatActivity {
             return expire_date.after(new Date());
         }
     }
+    */
 
-    private Member[] members = {
+    /*
             new Member("Karen Cukrowski", new Date[] {new Date(118, 11, 6)}),
             new Member("James Prather", new Date[] {new Date(118, 9, 9)}),
             new Member("Nathan Fillian", new Date[] {new Date(118, 10, 21)}),
@@ -74,14 +87,106 @@ public class AttendanceActivity extends AppCompatActivity {
             new Member("Christopher Rabbit", new Date[] {new Date(118, 11, 1)}),
             new Member("Bugs Bunny", new Date[] {new Date(118, 11, 8)}),
             new Member("Steven Rodgers", new Date[] {new Date(118, 11, 12)}),
-    };
+     */
+
+    private void createInitialMembers()
+    {
+            new Member(db, "Karen", "Cukrowski");
+            new Member(db, "James", "Prather");
+            Member Fillion = new Member(db, "Nathan", "Fillian");
+            Fillion.picture = "nathan_fillion";
+            new Member(db, "Rich", "Tanner");
+            new Member(db, "Jesse", "James");
+            new Member(db, "Scarlet", "Johansen");
+            new Member(db, "Wonder", "Woman");
+            new Member(db, "Venom");
+            new Member(db, "Katie", "Perry");
+            new Member(db, "Haley", "Kiyoko");
+            new Member(db, "Jeff", "Goldbloom");
+            new Member(db, "Chris", "Pratt");
+            new Member(db, "Chris", "Hemsworth");
+            new Member(db, "Chris", "Evans");
+            new Member(db, "Christopher", "Rabbit");
+            new Member(db, "Bugs", "Bunny");
+            new Member(db, "Steven", "Rogers");
+    }
+
+    private void createInitialAttendance(Member[] members, String lesson)
+    {
+        Random rand = new Random();
+        for (Member member : members)
+        {
+            int numberOfEntries = rand.nextInt(2) + 1;
+            for (int count = 0; count < numberOfEntries; count++)
+            {
+                int month = rand.nextInt(11) + 1;
+                int day = rand.nextInt(30) + 1;
+                int year = rand.nextInt(1) + 2017;
+                String date = month + "/" + day + "/" + year;
+
+                new AttendanceEntry(db, member.ID, lesson, date);
+            }
+        }
+    }
+
+    public boolean getMemberBenefits(Member thisMember)
+    {
+        if (thisMember.benefits == 0)
+            return true;
+        return false;
+    }
+
+    public boolean isPresent(Member member) {
+        SimpleDateFormat dFormat = new SimpleDateFormat("MM/dd/yyyy");
+        boolean flag = false;
+        try
+        {
+            Date strDate = dFormat.parse(member.resetTime);
+            if (new Date().after(strDate))
+                flag = true;
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return flag;
+    }
+
+    public void newResetTime(Member member)
+    {
+        int recentID = db.dbInterface().newestEntryID(member.ID);
+        AttendanceEntry recent = db.dbInterface().findEntryByID(recentID);
+
+        SimpleDateFormat dFormat = new SimpleDateFormat("MM/dd/yyyy");
+        try
+        {
+            Date strDate = dFormat.parse(recent.dateAttended);
+            Calendar c = Calendar.getInstance();
+            c.setTime(strDate);
+            c.add(Calendar.DATE, REFRESH_PERIOD);
+            String output = dFormat.format(c.getTime());
+
+            member.resetTime = output;
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance);
 
-        // TODO replace members variable with people stored in database
+        db = AppDatabase.getAppDatabase(getApplicationContext());
+
+        benefitsData data = new benefitsData(db, REFRESH_PERIOD);
+
+        createInitialMembers(); //creates dummy Members to fill the database;
+
+        Member[] members = db.dbInterface().getAll();
+        //Member[] members = db.dbInterface().getAllClassMembers(String Lesson); //use with a given lesson
+
+        createInitialAttendance(members, "empty"); //creates dummy attendance entries to fill the database;
 
         ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
 
@@ -90,8 +195,8 @@ public class AttendanceActivity extends AppCompatActivity {
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO make searchbar query database
-                // editTextSearch.getText().toString().trim();
+                String searchText = editTextSearch.getText().toString().trim();
+                Member[] results = db.dbInterface().findByName(searchText);
             }
         });
 
@@ -115,21 +220,34 @@ public class AttendanceActivity extends AppCompatActivity {
             profileImage.setMinimumHeight(250);
             profileImage.setMaxWidth(250);
             profileImage.setMinimumWidth(250);
-            profileImage.setBackgroundResource(android.R.drawable.sym_def_app_icon);
+            if (member.picture != null) {
+                Context context = profileImage.getContext();
+                int id = context.getResources().getIdentifier(member.picture, "drawable", context.getPackageName());
+                profileImage.setBackgroundResource(id);
+            }
+            else
+                profileImage.setBackgroundResource(android.R.drawable.sym_def_app_icon);
+
             constraintLayout.addView(profileImage);
 
+            String memberName = member.firstName + " ";
+            if (member.lastName != null)
+                memberName += member.lastName;
+
             Button memberProfileButton = new Button(this);
-            memberProfileButton.setText(member.name);
+            memberProfileButton.setText(memberName);
             memberProfileButton.setId(View.generateViewId());
             memberProfileButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    // TODO when all data is stored in database remove the .putExtra's
                     Intent memberProfileIntent = new Intent(AttendanceActivity.this,MemberProfileActivity.class);
-                    memberProfileIntent.putExtra("name",member.name);
-                    memberProfileIntent.putExtra("benefits",member.benefits);
+                    String memberName = member.firstName + " ";
+                    if (member.lastName != null)
+                        memberName += member.lastName;
+
+                    AttendanceEntry[] AttendanceList = db.dbInterface().memberAttendance(member.ID);
                     ArrayList<String> dates = new ArrayList<>();
-                    for (Date d : member.dates) {
-                        dates.add(d.toString());
+                    for (AttendanceEntry Attendance : AttendanceList) {
+                        dates.add(Attendance.dateAttended);
                     }
                     memberProfileIntent.putExtra("dates", dates.toArray(new String[dates.size()]));
                     startActivity(memberProfileIntent);
@@ -148,7 +266,7 @@ public class AttendanceActivity extends AppCompatActivity {
             benefitsRemoveButton.setId(View.generateViewId());
             benefitsRemoveButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    member.removeBenefit();
+                    member.benefits -= 1;
                     benefitsCounter.setText(Integer.toString(member.benefits));
                 }
             });
@@ -159,7 +277,7 @@ public class AttendanceActivity extends AppCompatActivity {
             benefitsAddButton.setId(View.generateViewId());
             benefitsAddButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    member.addBenefit();
+                    member.benefits += 1;
                     benefitsCounter.setText(Integer.toString(member.benefits));
                 }
             });
@@ -171,11 +289,12 @@ public class AttendanceActivity extends AppCompatActivity {
             recordDateButton.setId(View.generateViewId());
             recordDateButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    if (!member.isPresent()) {
-                        member.addBenefit();
+                    if (!isPresent(member)) {
+                        member.benefits += 1;
+                        new AttendanceEntry(db, member.ID, "empty");
+                        newResetTime(member);
                         benefitsCounter.setText(Integer.toString(member.benefits));
                     }
-                    member.addDate();
                     updatePresentColor(member, memberPresentView);
                 }
             });
@@ -220,7 +339,7 @@ public class AttendanceActivity extends AppCompatActivity {
     }
 
     public void updatePresentColor(Member member, View v) {
-        if (member.isPresent()) {
+        if (isPresent(member)) {
             v.setBackgroundColor(getColor(R.color.colorPresent));
         }
     }
