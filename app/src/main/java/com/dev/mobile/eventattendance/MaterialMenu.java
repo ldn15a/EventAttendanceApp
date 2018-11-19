@@ -3,46 +3,83 @@ import com.github.barteksc.pdfviewer.PDFView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import java.util.List;
 
 public class MaterialMenu extends AppCompatActivity {
+    private String [] fileNames = /* db.getFileNames (); */
+    {
+            //  Not hardcoded when function works and is present
+            "MobileAppProposal.pdf",
+            "MobileAppProposal2.pdf"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_material_menu);
 
-        searchForFiles ();
+        ConstraintLayout constraintLayout = findViewById(R.id.materialLayout);
+        Button previousButton = null;
 
-        final String [] sourceFiles = {
-                "MobileAppProposal.pdf",
-                "MobileAppProposal2.pdf"
-        };
+        for (int i = 0; i < fileNames.length; i++) {
+            Button newButton = new Button(this);
+            print (i);
+            newButton.setText(fileNames [i]);
+            newButton.setId(View.generateViewId());
 
-        final Button pdfButton1 = (Button) findViewById(R.id.PDF1Button);
-        pdfButton1.setOnClickListener(new View.OnClickListener() {
-            public void onClick (View v){
-                Intent i = new Intent(MaterialMenu.this, PDFViewer.class);
-                i.putExtra("src", sourceFiles [0]);
-                startActivity(i);
+            final int iCopy = i;    //  This line is really dumb but needed
+            newButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick (View v){
+                    Intent intent = new Intent(MaterialMenu.this, PDFViewer.class);
+                    intent.putExtra("src", fileNames [iCopy]);
+                    startActivity(intent);
+                }
+            });
+
+            constraintLayout.addView(newButton);
+
+            //  Add constraints to the button
+            ConstraintSet constraints = new ConstraintSet();
+            constraints.clone(constraintLayout);
+
+            constraints.connect(newButton.getId(), ConstraintSet.LEFT, constraintLayout.getId(), ConstraintSet.LEFT, 32);
+            if (previousButton != null) {
+                constraints.connect(newButton.getId(), ConstraintSet.TOP, previousButton.getId(), ConstraintSet.BOTTOM, 32);
+            } else {
+                constraints.connect(newButton.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 32);
             }
-        });
 
-        final Button pdfButton2 = (Button) findViewById(R.id.PDF2Button);
-        pdfButton2.setOnClickListener(new View.OnClickListener() {
-            public void onClick (View v){
-                Intent i = new Intent(MaterialMenu.this, PDFViewer.class);
-                i.putExtra("src", sourceFiles [1]);
-                startActivity(i);
-            }
-        });
+            constraints.applyTo(constraintLayout);
+            previousButton = newButton;
+        }
     }
 
-    private void searchForFiles ()
+    private void print (String str)
     {
-        //  Maybe implement later if we want this feature
+        for (int i = 0; i < 5; i++)
+        {
+            System.out.println ("\n\n-");
+        }
+
+        System.out.println (str);
+    }
+
+    private void print (int i)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            System.out.println ("\n\n-");
+        }
+
+        System.out.println (i);
     }
 }
