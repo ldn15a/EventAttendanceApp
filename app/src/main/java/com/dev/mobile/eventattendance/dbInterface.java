@@ -66,7 +66,7 @@ public interface dbInterface {
     void insertLesson(Lesson newLesson);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertMaterial(String material);
+    void insertMaterial(Material material);
 
     //changing data in the database
     @Update

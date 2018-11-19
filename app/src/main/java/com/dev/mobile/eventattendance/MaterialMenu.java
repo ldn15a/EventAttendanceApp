@@ -11,14 +11,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
 public class MaterialMenu extends AppCompatActivity {
-    private String [] fileNames = /* db.getFileNames (); */
-    {
-            //  Not hardcoded when function works and is present
-            "MobileAppProposal.pdf",
-            "MobileAppProposal2.pdf",
-            "MobileAppProposal2.pdf",
-            "MobileAppProposal2.pdf"
-    };
 
     public AppDatabase db;
 
@@ -28,15 +20,11 @@ public class MaterialMenu extends AppCompatActivity {
         setContentView(R.layout.activity_material_menu);
 
         db = AppDatabase.getAppDatabase(getApplicationContext());
+        final String [] fileNames = db.dbInterface().getMaterials();
+
         ConstraintLayout constraintLayout = findViewById(R.id.materialLayout);
         Button previousButton = null;
 
-        final String[] sourceFiles = db.dbInterface().getMaterials();
-
-        /*final String [] sourceFiles = {
-                "MobileAppProposal.pdf",
-                "MobileAppProposal2.pdf"
-        };*/
         for (int i = 0; i < fileNames.length; i++) {
             Button newButton = new Button(this);
             newButton.setText(fileNames [i]);
