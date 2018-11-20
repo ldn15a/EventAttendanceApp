@@ -42,7 +42,6 @@ public class newMember extends AppCompatActivity {
         profilePhoto = findViewById(R.id.imageView);
         name = findViewById(R.id.textView);
         lastName = findViewById(R.id.textView2);
-        age = findViewById(R.id.textView3);
         newMemberButton = findViewById(R.id.button);
 
 
@@ -134,13 +133,9 @@ public class newMember extends AppCompatActivity {
 
         String memberName = name.getText().toString();
         String memberLastName = lastName.getText().toString();
-        String memberStringAge = age.getText().toString();
         String memberImageFilePath = mCurrentPhotoPath;
 
-        int memberAge = Integer.parseInt(memberStringAge);
-
         Member member = new Member(db, memberName, memberLastName);
-        member.age = memberAge;
         member.picture = memberImageFilePath;
 
     }
