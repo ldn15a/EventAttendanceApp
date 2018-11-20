@@ -28,8 +28,9 @@ public class MaterialMenu extends AppCompatActivity {
             fileNames [i] = fileNamesOriginal [i];
         }
 
-        fileNames [0] = "button_particles.mp4";
-        fileNames [fileNames.length - 1] = "buttonParticles.mp4";
+        fileNames [0] = "MobileAppProposal.pdf";
+        fileNames [4] = "MobileAppProposal2.pdf";
+        fileNames [5] = "button_particles.mp4";
 
         ConstraintLayout constraintLayout = findViewById(R.id.materialLayout);
         Button previousButton = null;

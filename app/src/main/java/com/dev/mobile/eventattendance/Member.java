@@ -2,6 +2,7 @@ package com.dev.mobile.eventattendance;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import androidx.annotation.NonNull;
@@ -38,7 +39,6 @@ public class Member {
 
     public boolean isPresent() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-
         try
         {
             Date resetDate = simpleDateFormat.parse(resetTime);
@@ -49,5 +49,25 @@ public class Member {
             e.printStackTrace();
         }
         return true;
+    }
+
+    private static final int REFRESH_PERIOD = 7;
+    public void newResetTime(AppDatabase db)
+    {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        int latestDateID = db.dbInterface().newestEntryID(ID);
+        AttendanceEntry latestDate = db.dbInterface().findEntryByID(latestDateID);
+        try
+        {
+            Calendar c = Calendar.getInstance();
+            c.setTime(simpleDateFormat.parse(latestDate.dateAttended));
+            c.add(Calendar.DATE, REFRESH_PERIOD);
+            String resetDate = simpleDateFormat.format(c.getTime());
+
+            resetTime = resetDate;
+        }
+        catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -72,8 +72,11 @@ public class MenuActivity extends AppCompatActivity {
                 int day = rand.nextInt(30) + 1;
                 int year = rand.nextInt(1) + 2017;
                 if (year == 2018) {
-                    if (month == 12 && day > 19) {
+                    if (month >= 11 && day > 19) {
                         day = 19;
+                        if (month == 12) {
+                            month = 11;
+                        }
                     }
                 }
                 String date = month + "/" + day + "/" + year;
@@ -102,6 +105,13 @@ public class MenuActivity extends AppCompatActivity {
         materialsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(MenuActivity.this, MaterialMenu.class));
+            }
+        });
+
+        Button newMemberButton = (Button) findViewById(R.id.addStudentButton);
+        newMemberButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(MenuActivity.this, newMember.class));
             }
         });
 

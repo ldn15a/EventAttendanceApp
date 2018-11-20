@@ -20,7 +20,9 @@
         <activity android:name=".MemberProfileActivity" />
         <activity android:name=".MaterialMenu" />
         <activity android:name=".PDFViewer" />
-        <activity android:name=".videoViewer"></activity>
+        <activity android:name=".newMember"/>
+        <activity android:name=".videoViewer">
+        </activity>
     </application>
 
 </manifest>
