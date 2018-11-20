@@ -40,4 +40,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/attendanceButton" />
 
+    <Button
+        android:id="@+id/addStudentButton"
+        android:layout_width="0dp"
+        android:layout_height="@android:dimen/notification_large_icon_height"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="add new student"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialsButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

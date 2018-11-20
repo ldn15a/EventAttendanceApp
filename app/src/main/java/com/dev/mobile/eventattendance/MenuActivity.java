@@ -108,6 +108,13 @@ public class MenuActivity extends AppCompatActivity {
             }
         });
 
+        Button newMemberButton = (Button) findViewById(R.id.addStudentButton);
+        newMemberButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(MenuActivity.this, newMember.class));
+            }
+        });
+
         db = AppDatabase.getAppDatabase(getApplicationContext());
         Member[] members = db.dbInterface().getAll();
         if (members.length == 0) {
