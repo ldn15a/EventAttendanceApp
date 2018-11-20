@@ -2,6 +2,7 @@ package com.dev.mobile.eventattendance;
 import com.github.barteksc.pdfviewer.PDFView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +21,15 @@ public class MaterialMenu extends AppCompatActivity {
         setContentView(R.layout.activity_material_menu);
 
         db = AppDatabase.getAppDatabase(getApplicationContext());
-        final String [] fileNames = db.dbInterface().getMaterials();
+        final String[] fileNamesOriginal = db.dbInterface().getMaterials();
+        final String[] fileNames = new String [fileNamesOriginal.length];
+
+        for (int i = 0; i < fileNamesOriginal.length; i++) {
+            fileNames [i] = fileNamesOriginal [i];
+        }
+
+        fileNames [0] = "button_particles.mp4";
+        fileNames [fileNames.length - 1] = "buttonParticles.mp4";
 
         ConstraintLayout constraintLayout = findViewById(R.id.materialLayout);
         Button previousButton = null;
@@ -33,8 +42,16 @@ public class MaterialMenu extends AppCompatActivity {
             final int iCopy = i;    //  This line is really dumb but needed
             newButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick (View v){
-                    Intent intent = new Intent(MaterialMenu.this, PDFViewer.class);
-                    intent.putExtra("src", fileNames [iCopy]);
+                    Intent intent;
+                    if (fileNames [iCopy].contains(".pdf")) {
+                        intent = new Intent(MaterialMenu.this, PDFViewer.class);
+                        intent.putExtra("src", fileNames [iCopy]);
+                    }
+                    else {
+                        intent = new Intent(MaterialMenu.this, videoViewer.class);
+                        int resId = getResources().getIdentifier("raw/button_particles", null, getApplicationContext().getPackageName());
+                        intent.putExtra("src", resId);
+                    }
                     startActivity(intent);
                 }
             });
@@ -51,10 +68,6 @@ public class MaterialMenu extends AppCompatActivity {
             } else {
                 constraints.connect(newButton.getId(), ConstraintSet.TOP, constraintLayout.getId(), ConstraintSet.TOP, 32);
             }
-
-            //  Wanted to put them side by side in scroll view as this size, but had trouble figuring it out
-            //  constraints.constrainHeight(newButton.getId (), 800);
-            //  constraints.constrainWidth(newButton.getId (), 450);
 
             constraints.centerHorizontally(newButton.getId(), constraintLayout.getId ());
             constraints.constrainHeight(newButton.getId (), 1400);
