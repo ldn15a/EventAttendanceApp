@@ -40,10 +40,7 @@ public class MemberProfileActivity extends AppCompatActivity {
             dates.add(attendance.dateAttended);
         }
 
-        if  (member.isPresent()) {
-            ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
-            constraintLayout.setBackgroundColor(getColor(R.color.colorPresent));
-        }
+        updatePresentColor();
 
         TextView textViewName = findViewById(R.id.textViewName);
         String name = member.firstName + " " + member.lastName;
@@ -80,15 +77,26 @@ public class MemberProfileActivity extends AppCompatActivity {
                 if (!member.isPresent()) {
                     member.benefits++;
                     textViewBenefits.setText("Benefits: " + Integer.toString(member.benefits));
-                    member.updateDB(db);
                 }
 
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
                 addDate(simpleDateFormat.format(new Date()));
                 AttendanceEntry entry = new AttendanceEntry(db, member.ID, "empty");
                 entry.updateDB(db);
+
+                member.newResetTime(db);
+                member.updateDB(db);
+
+                updatePresentColor();
             }
         });
+    }
+
+    public void updatePresentColor() {
+        ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
+        if (member.isPresent()) {
+            constraintLayout.setBackgroundColor(getColor(R.color.colorPresent));
+        }
     }
 
     private boolean IS_COLORED = false;

@@ -17,32 +17,15 @@ import android.widget.TextView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class AttendanceActivity extends AppCompatActivity {
 
-    private static final int REFRESH_PERIOD = 7;
+
     public AppDatabase db;
-
-    public void newResetTime(Member member)
-    {
-        int latestDateID = db.dbInterface().newestEntryID(member.ID);
-        AttendanceEntry latestDate = db.dbInterface().findEntryByID(latestDateID);
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        try
-        {
-            Calendar c = Calendar.getInstance();
-            c.setTime(simpleDateFormat.parse(latestDate.dateAttended));
-            c.add(Calendar.DATE, REFRESH_PERIOD);
-            String resetDate = simpleDateFormat.format(c.getTime());
-
-            member.resetTime = resetDate;
-        }
-        catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static ArrayList<TextView> benefits = new ArrayList<>();
 
@@ -80,6 +63,12 @@ public class AttendanceActivity extends AppCompatActivity {
             }
         });
     }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        finish();
+        startActivity(getIntent());
+    }
 
     public void clearScrollview() {
         ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
@@ -90,7 +79,31 @@ public class AttendanceActivity extends AppCompatActivity {
         ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.constraintLayout);
         View previousMemberView = null;
 
-        for (final Member member : members) {
+        // Sort members
+        ArrayList<Member> membersList = new ArrayList<>(Arrays.asList(members));
+        Collections.sort(membersList, new Comparator<Member>() {
+            @Override
+            public int compare(Member a, Member b) {
+                // if there is no last name then compare first name
+                if (a.lastName == null || b.lastName == null) {
+                    if (a.lastName == null && b.lastName == null) {
+                        return a.firstName.compareTo(b.firstName);
+                    }
+                    else if (a.lastName == null) {
+                        return a.firstName.compareTo(b.lastName);
+                    } else {
+                        return a.lastName.compareTo(b.firstName);
+                    }
+                }
+                else if (a.lastName == b.lastName) {
+                    return a.firstName.compareTo(b.firstName);
+                } else {
+                    return a.lastName.compareTo(b.lastName);
+                }
+            }
+        });
+
+        for (final Member member : membersList) {
             // View
             final View memberPresentView = new View(this);
             memberPresentView.setId(View.generateViewId());
@@ -172,11 +185,13 @@ public class AttendanceActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     if (!member.isPresent()) {
                         member.benefits += 1;
-                        member.updateDB(db);
+                        benefitsCounter.setText(Integer.toString(member.benefits));
+
                         AttendanceEntry entry = new AttendanceEntry(db, member.ID, "empty");
                         entry.updateDB(db);
-                        newResetTime(member);
-                        benefitsCounter.setText(Integer.toString(member.benefits));
+
+                        member.newResetTime(db);
+                        member.updateDB(db);
                     } else {
                         AttendanceEntry entry = new AttendanceEntry(db, member.ID, "empty");
                         entry.updateDB(db);
